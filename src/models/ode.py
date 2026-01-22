@@ -1,5 +1,5 @@
 import numpy as np
-from .physics import NSTEPS, DT, H_VEC, K, dose_rate_time, L
+from ..methods.physics import NSTEPS, DT, H_VEC, K, dose_rate_time, L
 
 def physics_ode_derivative(mass, r_t, rho, beta, wh_mean):
     """Pochodna dM/dt wynikająca z czystej fizyki (Logistyka - Śmierć)"""

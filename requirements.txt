@@ -5,3 +5,6 @@ tqdm
 imageio
 SALib
 scipy
+seaborn
+nbconvert
+ipykernel

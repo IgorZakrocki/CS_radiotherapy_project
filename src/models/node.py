@@ -1,26 +1,42 @@
-import torch
-import torch.nn as nn
 import numpy as np
-from .physics import NSTEPS, DT, H_VEC, dose_rate_time, K, L
+import torch
 
-class ODE_Supermodel(nn.Module):
-    """
-    Rozszerzony NODE, który modeluje nie tylko Masę, ale i Środek Masy (COM).
-    Input: [Mass, COM, Dose_Center, Is_Uniform, r(t), rho, beta]
-    Output: [dMass_corr, dCOM]
-    """
-    def __init__(self):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(7, 32),
-            nn.ReLU(),
-            nn.Linear(32, 32),
-            nn.ReLU(),
-            nn.Linear(32, 2) 
-        )
+from ..methods.physics import NSTEPS, DT, H_VEC, dose_rate_time, K, L
+from .ode import physics_ode_derivative
+
+def run_node_simulation(model, u0, rho, beta, W):
+    """Integracja w czasie używając hybrydowego NODE"""
+    model.eval()
+    times = np.linspace(0, NSTEPS*DT, NSTEPS + 1)
+    mass_hist = np.zeros(NSTEPS + 1)
     
-    def forward(self, x):
-        return self.net(x)
+    current_mass = np.trapz(u0, dx=L/len(u0))
+    mass_hist[0] = current_mass
+    wh_mean = np.mean(W * H_VEC)
+    
+    with torch.no_grad():
+        for n in range(NSTEPS):
+            t = times[n]
+            r_t = dose_rate_time(t)
+            
+            # 1. Fizyka bazowa
+            d_phys = physics_ode_derivative(current_mass, r_t, rho, beta, wh_mean)
+            
+            # 2. Poprawka z sieci
+            inputs = torch.tensor([current_mass, r_t, rho, beta, wh_mean], dtype=torch.float32)
+            # Powielamy wymiar batcha (1, 5) aby pasowało do sieci
+            inputs = inputs.unsqueeze(0) 
+            
+            # Sieć zwraca tensor, bierzemy scalar
+            d_corr = model(inputs[:,0], inputs[:,1], inputs[:,2], inputs[:,3], inputs[:,4]).item()
+            
+            # 3. Krok (Euler)
+            current_mass += DT * (d_phys + d_corr)
+            current_mass = max(current_mass, 0.0)
+            
+            mass_hist[n+1] = current_mass
+            
+    return times, mass_hist
 
 def run_supermodel_simulation(model, u0, rho, beta, W, d_center, d_uni):
     """Integracja ODE Supermodel (Mass + COM)"""
