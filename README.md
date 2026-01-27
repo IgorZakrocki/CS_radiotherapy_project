@@ -1,39 +1,90 @@
-# CS_radiotherapy_project# CS Radiotherapy Project
+# CS Radiotherapy Project
 
-Projekt symulacyjny poświęcony modelowaniu matematycznemu i uczeniu maszynowemu w kontekście radioterapii onkologicznej. Projekt bada dynamikę wzrostu guza oraz wpływ promieniowania przy użyciu równań różniczkowych (PDE/ODE) oraz nowoczesnych metod AI (PINN - Physics-Informed Neural Networks).
+Projekt symulacyjny poświęcony matematycznemu modelowaniu oraz zastosowaniom uczenia maszynowego w radioterapii onkologicznej. Głównym celem jest analiza dynamiki wzrostu guza oraz optymalizacja dawki promieniowania z wykorzystaniem podejść klasycznych (modele oparte o równania różniczkowe) oraz metod głębokiego uczenia, w szczególności **Physics-Informed Neural Networks (PINN)**.
 
-## 📂 Struktura Projektu
+## Struktura projektu
 
-Główna logika symulacji znajduje się w katalogu `simulations/`. Każdy notatnik odpowiada za inny aspekt modelowania:
+Główna logika obliczeniowa i eksperymenty znajdują się w katalogu `simulations/`. Każdy notatnik odpowiada innemu wariantowi modelu lub technice analitycznej:
 
-* **`sim_01_pde.ipynb`** – Symulacja 2D z wykorzystaniem Równań Różniczkowych Cząstkowych (PDE). Modeluje przestrzenną dyfuzję guza i wpływ dawki promieniowania.
-* **`sim_02_ode.ipynb`** – Modelowanie za pomocą Równań Różniczkowych Zwyczajnych (ODE). Skupia się na ewolucji masy guza w czasie bez uwzględniania przestrzeni.
-* **`sim_03_sensitivity.ipynb`** – Analiza wrażliwości parametrów modelu.
-* **`sim_04_node.ipynb`** – Neural ODE (Neuronalne Równania Różniczkowe). Wykorzystanie sieci neuronowych do aproksymacji dynamiki układu.
-* **`sim_05_asimilation.ipynb`** – Asymilacja danych (Data Assimilation). Dopasowywanie modelu do obserwacji.
-* **`sim_06_PINN.ipynb`** – Physics-Informed Neural Networks. Hybrydowe podejście łączące wiedzę fizyczną (równania PDE) z uczeniem głębokim (PyTorch) do przewidywania rozwoju guza.
+- **`sim_01_pde.ipynb`**  
+  Symulacja 2D oparta o **równania różniczkowe cząstkowe (PDE)** – modeluje przestrzenną dyfuzję guza oraz wpływ dawki promieniowania na tkankę.
 
-## 🚀 Jak uruchomić projekt (How to turn on)
+- **`sim_02_ode.ipynb`**  
+  Modelowanie ewolucji masy guza w czasie z użyciem **równań różniczkowych zwyczajnych (ODE)**, bez komponentu przestrzennego.
 
-Ponieważ plik `requirements.txt` w repozytorium jest pusty, poniżej znajduje się instrukcja instalacji brakujących bibliotek zidentyfikowanych w kodzie.
+- **`sim_03_sensitivity.ipynb`**  
+  **Analiza wrażliwości (Sensitivity Analysis)** z użyciem biblioteki **SALib**, pozwalająca ocenić wpływ parametrów wejściowych na wyniki symulacji.
 
-### Wymagania wstępne
-* Python 3.8+
-* Zalecane utworzenie wirtualnego środowiska.
+- **`sim_04_node.ipynb`**  
+  Implementacja **Neural ODE** – wykorzystanie sieci neuronowych do aproksymacji dynamiki układu dynamicznego.
 
-### Krok 1: Instalacja zależności
+- **`sim_05_asimilation.ipynb`**  
+  Moduł **asymilacji danych (Data Assimilation)** służący do dopasowywania modelu do danych obserwacyjnych.
 
-W terminalu wykonaj następujące polecenia:
+- **`sim_06_PINN.ipynb`**  
+  Zastosowanie **Physics-Informed Neural Networks (PINN)** – podejście hybrydowe łączące ograniczenia wynikające z równań fizycznych (PDE) z uczeniem sieci neuronowych w celu predykcji rozwoju nowotworu.
+
+## Wymagania systemowe
+
+- Python **3.8+**
+- Rekomendowane środowisko: **Linux/macOS** lub **WSL** na Windows (ze względu na wsparcie dla `make`)
+
+Zależności są zdefiniowane w pliku `requirements.txt` i obejmują m.in.:
+- `numpy`, `scipy` – obliczenia numeryczne
+- `torch` – uczenie maszynowe / deep learning
+- `matplotlib`, `seaborn` – wizualizacja
+- `SALib` – analiza wrażliwości
+
+## Instalacja i konfiguracja
+
+Projekt wspiera automatyzację instalacji poprzez `Makefile`.
+
+### Metoda 1: automatyczna (zalecana)
+
+Utworzenie środowiska wirtualnego (`.venv`) oraz instalacja zależności:
 
 ```bash
-# 1. Utworzenie wirtualnego środowiska (opcjonalnie, ale zalecane)
+make install
+```
+
+### Metoda 2: ręczna
+
+Jeśli `make` nie jest dostępne, instalację można wykonać manualnie:
+
+```bash
 python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-# 2. Aktywacja środowiska
-# Windows:
-.venv\Scripts\activate
-# Mac/Linux:
-source .venv/bin/activate
+## Uruchamianie symulacji
 
-# 3. Instalacja bibliotek
-pip install numpy matplotlib scipy torch imageio jupyterlab
+### Wykonanie wszystkich symulacji (tryb wsadowy)
+
+Aby automatycznie uruchomić wszystkie notatniki Jupyter z katalogu `simulations/` i zapisać wyniki bezpośrednio w plikach `.ipynb`:
+
+```bash
+make run
+```
+
+### Uruchamianie interaktywne
+
+Praca w trybie interaktywnym z użyciem Jupyter Lab:
+
+```bash
+jupyter lab
+```
+
+Następnie otwórz wybrany plik z katalogu `simulations/`.
+
+## Czyszczenie wyników
+
+Usunięcie wygenerowanych wyników z notatników (np. przed commitowaniem zmian):
+
+```bash
+make clean
+```
+
+## Licencja
+
+Projekt jest udostępniany na warunkach licencji opisanej w pliku `LICENSE`.
